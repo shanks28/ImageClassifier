@@ -21,6 +21,7 @@ def load_checkpoint(filepath):
         last_layer='features'
     custom_last_layer=checkpoint['last_layer']
     setattr(model,last_layer,custom_last_layer)
+    model.class_to_index=checkpoint['class_to_index']
     return model
 def load_json(file_path):
     with open(file_path,'r') as f:
@@ -31,8 +32,9 @@ def predict_image(image_path,checkpoint_path,topk,category_names,mode):
 
     try:
         flower_to_names = load_json(category_names)
-        print(flower_to_names)
         model=load_checkpoint(checkpoint_path)
+        class_to_index=model.class_to_index
+        reversed_class_to_index = dict((str(v),k) for k,v in class_to_index.items())
         im=Image.open(image_path)
         image_transforms=transforms.Compose([transforms.Resize(256),
                                              transforms.CenterCrop(223),
@@ -58,7 +60,7 @@ def predict_image(image_path,checkpoint_path,topk,category_names,mode):
         top_class=list(map(func,top_class))
         names=[]
         for i in top_class:
-            names.append(flower_to_names[i])
+            names.append(flower_to_names[reversed_class_to_index[i]])
         return names,res_p.flatten()
     except Exception as e:
         print(e.args)

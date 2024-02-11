@@ -40,7 +40,7 @@ def build(data_directory,architecture):
             attr='classifier'
         else:
             attr='features'
-        print(model)
+        model.class_to_index=train_dataset.class_to_idx
         return (model,train_data_loader,valid_data_loader,attr)
     except Exception as e:
         print(e.args)
@@ -113,7 +113,8 @@ def train(arch,data_directory,save_directory,learning_rate,hidden_units,epochs,m
                 'last_layer':getattr(model,arrt),
                 'hidden_units':hidden_units,
                 'learning_rate':learning_rate,
-                'epochs':epochs}
+                'epochs':epochs,
+                'class_to_index':model.class_to_index}
     torch.save(checkpoint,save_directory+'/checkpoint.pth')
     return model,arrt
 
